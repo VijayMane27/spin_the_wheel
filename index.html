@@ -22,6 +22,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden; /* Add this line */
         }
         .main-image, .fortune-wheel, .button-image {
             position: absolute;
@@ -30,7 +31,8 @@
             transform: translate(-50%, -50%);
         }
         .main-image {
-            width: 100%;
+            /* width: 100%; */
+            max-width: 160%;
             height: auto;
             z-index: 2;
         }
