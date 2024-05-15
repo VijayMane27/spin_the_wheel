@@ -3,37 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spin Wheel</title>
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
+    <title>Responsive Image with Button and Fortune Wheel</title>
+    <style>
+        body {
+            background-color: #001f3f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            max-width: 600px;
+            max-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .main-image, .fortune-wheel, .button-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .main-image {
+            width: 100%;
+            height: auto;
+            z-index: 2;
+        }
+        .fortune-wheel {
+            width: 80%;
+            height: auto;
+            z-index: 1;
+        }
+        .button-image {
+            width: 20%;
+            cursor: pointer;
+            z-index: 3;
+        }
+        canvas {
+            display: block;
+        }
+        .popup {
+            position: fixed;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #333;
+            font-size: 18px;
+            z-index: 999;
+        }
+    </style>
 </head>
-<body style="overflow: hidden;">
+<body>
     <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h4 class="instruct">PRESS "BELOW BUTTON" KEY TO SPIN THE WHEEL</h4>
-                <img class="pin" src="./assets/pin.png" alt="" />
-                <img id="spinner" class="shake" src="./assets/wheel.png" />
-                <button id="spin-btn" class="btn" onclick="spin()">
-                    <img class="spin-btn" src="./assets/spin-n-win-logo.png" alt="" />
-                </button>
-                <div class="pop-up-content">
-                    <h1>You Won!!</h1>
-                    <p class="pop-up-para"></p>
-                </div>
-            </div>
-        </div>
+        <img src="assets/image.png" alt="Main Image" class="main-image">
+        <img src="assets/icon.png" alt="Button Image" class="button-image" onclick="spinWheel()">
+        <canvas id="wheelCanvas" class="fortune-wheel"></canvas>
     </div>
 
-    <!-- JavaScript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="./app.js"></script>
+    <script>
+        const segments = ["Prize 1", "Prize 2", "Prize 3", "Prize 4", "Prize 5", "Prize 6"];
+        const colors = ["#FF0000", "#FFA500", "#FFFF00", "#008000", "#0000FF", "#4B0082"];
+        let startAngle = 0;
+        let arc = Math.PI / (segments.length / 2);
+        let spinTimeout = null;
+        let spinAngleStart = 10;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+
+        function drawWheel() {
+            const canvas = document.getElementById("wheelCanvas");
+            const ctx = canvas.getContext("2d");
+            const outsideRadius = canvas.width / 2 - 20;
+            const textRadius = outsideRadius - 70;
+            const insideRadius = 20;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < segments.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, angle, angle + arc, false);
+                ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, angle + arc, angle, true);
+                ctx.fill();
+                ctx.save();
+                ctx.fillStyle = "#fff";
+                ctx.translate(canvas.width / 2 + Math.cos(angle + arc / 2) * textRadius,
+                              canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                const text = segments[i];
+                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        function rotateWheel() {
+            spinTime += 30;
+            if (spinTime >= spinTimeTotal) {
+                stopRotateWheel();
+                return;
+            }
+            const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+            startAngle += (spinAngle * Math.PI / 180);
+            drawWheel();
+            spinTimeout = requestAnimationFrame(rotateWheel);
+        }
+
+        function stopRotateWheel() {
+            cancelAnimationFrame(spinTimeout);
+            const degrees = startAngle * 180 / Math.PI + 90;
+            const arcd = arc * 180 / Math.PI;
+            const index = Math.floor((360 - degrees % 360) / arcd);
+            const winningPrize = segments[index];
+
+            
+
+            const popup = document.createElement('div');
+            popup.textContent = "You won: " + winningPrize;
+            popup.className = 'popup';
+            document.body.appendChild(popup);
+
+            setTimeout(function() {
+                popup.remove();
+            }, 3000);
+        }
+
+        function easeOut(t, b, c, d) {
+            const ts = (t /= d) * t;
+            const tc = ts * t;
+            return b + c * (tc + -3 * ts + 3 * t);
+        }
+
+        function spinWheel() {
+            spinAngleStart = Math.random() * 10 + 10;
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3 + 4 * 1000;
+            rotateWheel();
+        }
+
+        window.onload = function() {
+            const canvas = document.getElementById("wheelCanvas");
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientWidth;
+            drawWheel();
+        };
+    </script>
 </body>
 </html>
