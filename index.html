@@ -15,7 +15,7 @@
         }
         .container {
             position: relative;
-            width: 90vw;
+            width: 100vw;
             height: 90vh;
             max-width: 600px;
             max-height: 600px;
@@ -68,6 +68,7 @@
         <canvas id="wheelCanvas" class="fortune-wheel"></canvas>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
         const segments = ["Prize 1", "Prize 2", "Prize 3", "Prize 4", "Prize 5", "Prize 6"];
         const colors = ["#FF0000", "#FFA500", "#FFFF00", "#008000", "#0000FF", "#4B0082"];
@@ -124,12 +125,19 @@
             const index = Math.floor((360 - degrees % 360) / arcd);
             const winningPrize = segments[index];
 
-            
-
             const popup = document.createElement('div');
             popup.textContent = "You won: " + winningPrize;
             popup.className = 'popup';
             document.body.appendChild(popup);
+
+            // Confetti effect
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                // colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+                shapes: ['star','circle','square']
+            });
 
             setTimeout(function() {
                 popup.remove();
