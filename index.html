@@ -33,7 +33,7 @@
             z-index: 2;
         }
         .main-image {
-            width: 500px;
+            width: 450px;
             height: auto;
         }
         .button-image {
@@ -45,7 +45,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 100%; /* Adjust the maximum width */
+            max-width: 80%; /* Adjust the maximum width */
             height: auto;
             z-index: 1;
         }
@@ -195,14 +195,12 @@ function spinWheel() {
     rotateWheel();
 }
 
-window.onload = function() {
-    const canvas = document.getElementById("wheelCanvas");
-    const container = document.querySelector(".container");
-    const canvasSize = Math.min(container.offsetWidth, container.offsetHeight);
-    canvas.width = canvasSize -65;
-    canvas.height = canvasSize -65;
-    drawWheel();
-};
+        window.onload = function() {
+            const canvas = document.getElementById("wheelCanvas");
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientWidth;
+            drawWheel();
+        };
     </script>
 </body>
 </html>
