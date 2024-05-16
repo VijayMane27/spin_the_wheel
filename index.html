@@ -103,10 +103,10 @@ let spinTime = 0;
 let spinTimeTotal = 0;
 
 // Function to create gradient
-function createGradient(ctx, x, y, radius) {
+function createGradient(ctx, x, y, radius, startColor, endColor) {
     const gradient = ctx.createLinearGradient(x - radius, y, x + radius, y);
-    gradient.addColorStop(0, "#55A8FE"); // Start color
-    gradient.addColorStop(1, "white");    // End color
+    gradient.addColorStop(0, startColor);
+    gradient.addColorStop(1, endColor);
     return gradient;
 }
 
@@ -118,13 +118,29 @@ function drawWheel() {
     const insideRadius = 20;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "bold 20px 'Londrina Outline', cursive";
+    ctx.font = "bold 25px 'Londrina Outline', cursive";
 
     for (let i = 0; i < segments.length; i++) {
         const angle = startAngle + i * arc;
 
+        // Determine the group index for the current segment
+        const groupIndex = Math.floor(i / 3);
+
+        // Define gradient colors based on group index
+        let startColor, endColor;
+        if (groupIndex === 0) {
+            startColor = "#55A8FE";
+            endColor = "#9ED1FC";
+        } else if (groupIndex === 1) {
+            startColor = "#55A8FE";
+            endColor = "#E5E5E5";
+        } else {
+            startColor = "#55A8FE";
+            endColor = "#214266";
+        }
+
         // Create gradient for rim
-        const gradient = createGradient(ctx, canvas.width / 2, canvas.height / 2, outsideRadius);
+        const gradient = createGradient(ctx, canvas.width / 2, canvas.height / 2, outsideRadius, startColor, endColor);
         ctx.fillStyle = gradient;
 
         ctx.beginPath();
@@ -149,6 +165,8 @@ function drawWheel() {
         ctx.restore();
     }
 }
+
+drawWheel();
 
 function rotateWheel() {
     spinTime += 30;
