@@ -26,26 +26,29 @@
             align-items: center;
             overflow: hidden; 
         }
-        .main-image, .fortune-wheel, .button-image {
+        .main-image, .button-image {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            z-index: 2;
         }
         .main-image {
             width: 450px;
             height: auto;
-            z-index: 2;
-        }
-        .fortune-wheel {
-            width: 80%;
-            height: auto;
-            z-index: 1;
         }
         .button-image {
             width: 20%;
             cursor: pointer;
-            z-index: 3;
+        }
+        .fortune-wheel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 80%; /* Adjust the maximum width */
+            height: auto;
+            z-index: 1;
         }
         canvas {
             display: block;
@@ -118,64 +121,62 @@
     }
 }
 
+function rotateWheel() {
+    spinTime += 30;
+    if (spinTime >= spinTimeTotal) {
+        stopRotateWheel();
+        return;
+    }
+    const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+    startAngle += (spinAngle * Math.PI / 180);
+    drawWheel();
+    spinTimeout = requestAnimationFrame(rotateWheel);
+}
 
+function stopRotateWheel() {
+    cancelAnimationFrame(spinTimeout);
+    const degrees = startAngle * 180 / Math.PI + 90;
+    const arcd = arc * 180 / Math.PI;
+    const index = Math.floor((360 - degrees % 360) / arcd);
+    const winningPrize = segments[index];
 
-        function rotateWheel() {
-            spinTime += 30;
-            if (spinTime >= spinTimeTotal) {
-                stopRotateWheel();
-                return;
-            }
-            const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-            startAngle += (spinAngle * Math.PI / 180);
-            drawWheel();
-            spinTimeout = requestAnimationFrame(rotateWheel);
-        }
+    const popup = document.createElement('div');
+    popup.className = 'popup';
 
-        function stopRotateWheel() {
-            cancelAnimationFrame(spinTimeout);
-            const degrees = startAngle * 180 / Math.PI + 90;
-            const arcd = arc * 180 / Math.PI;
-            const index = Math.floor((360 - degrees % 360) / arcd);
-            const winningPrize = segments[index];
+    if (winningPrize === "😔") {
+        popup.textContent = "Better luck next time!";
+    } else {
+        popup.textContent = "You won: " + winningPrize;
+    }
 
-            const popup = document.createElement('div');
-            popup.className = 'popup';
+    document.body.appendChild(popup);
 
-            if (winningPrize === "😔") {
-                popup.textContent = "Better luck next time!";
-            } else {
-                popup.textContent = "You won: " + winningPrize;
-            }
+    // Confetti effect
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        // colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+        shapes: ['star','circle','square']
+    });
 
-            document.body.appendChild(popup);
+    setTimeout(function() {
+        popup.remove();
+    }, 3000);
+}
 
-            // Confetti effect
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                // colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
-                shapes: ['star','circle','square']
-            });
+function easeOut(t, b, c, d) {
+    const ts = (t /= d) * t;
+    const tc = ts * t;
+    return b + c * (tc + -3 * ts + 3 * t);
+}
 
-            setTimeout(function() {
-                popup.remove();
-            }, 3000);
-        }
-
-        function easeOut(t, b, c, d) {
-            const ts = (t /= d) * t;
-            const tc = ts * t;
-            return b + c * (tc + -3 * ts + 3 * t);
-        }
-
-        function spinWheel() {
-            spinAngleStart = Math.random() * 10 + 10;
-            spinTime = 0;
-            spinTimeTotal = Math.random() * 3 + 4 * 1000;
-            rotateWheel();
-        }
+function spinWheel() {
+    spinAngleStart = Math.random() * 10 + 10;
+    spinTime = 0;
+    spinTimeTotal = Math.random() * 3 + 4 * 1000;
+    rotateWheel();
+}
 
         window.onload = function() {
             const canvas = document.getElementById("wheelCanvas");
