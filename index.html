@@ -93,16 +93,24 @@
   
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
-        const segments = ["25₹","50₹","😔", "25₹","50₹", "😔", "25₹", "50₹", "😔"];
-        const colors = ["#9ED1FC", "#E5E5E5", "#214266", "#9ED1FC", "#E5E5E5", "#214266","#9ED1FC", "#E5E5E5", "#214266"];
-        let startAngle = 0;
-        let arc = Math.PI / (segments.length / 2);
-        let spinTimeout = null;
-        let spinAngleStart = 10;
-        let spinTime = 0;
-        let spinTimeTotal = 0;
+    const segments = ["25₹","50₹","😔", "25₹","50₹", "😔", "25₹", "50₹", "😔"];
+const colors = ["#9ED1FC", "#E5E5E5", "#214266", "#9ED1FC", "#E5E5E5", "#214266","#9ED1FC", "#E5E5E5", "#214266"];
+let startAngle = 0;
+let arc = Math.PI / (segments.length / 2);
+let spinTimeout = null;
+let spinAngleStart = 10;
+let spinTime = 0;
+let spinTimeTotal = 0;
 
-        function drawWheel() {
+// Function to create gradient
+function createGradient(ctx, x, y, radius) {
+    const gradient = ctx.createLinearGradient(x - radius, y, x + radius, y);
+    gradient.addColorStop(0, "#55A8FE"); // Start color
+    gradient.addColorStop(1, "white");    // End color
+    return gradient;
+}
+
+function drawWheel() {
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const outsideRadius = canvas.width / 2 - 15;
@@ -110,11 +118,15 @@
     const insideRadius = 20;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "bold 20px 'Londrina Outline', cursive";
+    ctx.font = "bold 25px 'Londrina Outline', cursive";
 
     for (let i = 0; i < segments.length; i++) {
         const angle = startAngle + i * arc;
-        ctx.fillStyle = colors[i];
+
+        // Create gradient for rim
+        const gradient = createGradient(ctx, canvas.width / 2, canvas.height / 2, outsideRadius);
+        ctx.fillStyle = gradient;
+
         ctx.beginPath();
         ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, angle, angle + arc, false);
         ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, angle + arc, angle, true);
@@ -123,14 +135,14 @@
 
         // Adjust text position to display from bottom of the segment to middle top
         const textX = canvas.width / 2 + Math.cos(angle + arc / 2) * textRadius;
-        const textY = canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius - 10; // Adjusted margin
+        const textY = canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius; // Adjusted margin
 
         // Rotate the context to display text vertically
         ctx.translate(textX, textY);
         ctx.rotate(angle + arc / 2 + Math.PI);
 
         const text = segments[i];
-        
+
         // Set text color
         ctx.fillStyle = "black";
         ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
