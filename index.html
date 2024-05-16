@@ -33,7 +33,7 @@
             z-index: 2;
         }
         .main-image {
-            width: 700px;
+            width: 500px;
             height: auto;
         }
         .button-image {
@@ -106,7 +106,7 @@
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const outsideRadius = canvas.width / 2 - 20;
-    const textRadius = outsideRadius - 60;
+    const textRadius = outsideRadius - 50; // Adjusted radius for text
     const insideRadius = 20;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -199,8 +199,8 @@ window.onload = function() {
     const canvas = document.getElementById("wheelCanvas");
     const container = document.querySelector(".container");
     const canvasSize = Math.min(container.offsetWidth, container.offsetHeight);
-    canvas.width = canvasSize -30;
-    canvas.height = canvasSize -30;
+    canvas.width = canvasSize -65;
+    canvas.height = canvasSize -65;
     drawWheel();
 };
     </script>
