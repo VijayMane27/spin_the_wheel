@@ -145,7 +145,7 @@ function drawWheel() {
 
         // Adjust text position to display from bottom of the segment to middle top
         const textX = canvas.width / 2 + Math.cos(angle + arc / 2) * textRadius;
-        const textY = canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius; // Adjusted margin
+        const textY = canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius ; // Adjusted margin
 
         // Rotate the context to display text vertically
         ctx.translate(textX, textY);
