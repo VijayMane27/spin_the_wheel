@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Image with Button and Fortune Wheel</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Londrina+Outline&display=swap');
         body {
             background-color: #001f3f;
             display: flex;
@@ -12,6 +13,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            
         }
         .container {
             position: relative;
@@ -22,7 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Add this line */
+            overflow: hidden; 
         }
         .main-image, .fortune-wheel, .button-image {
             position: absolute;
@@ -31,8 +33,7 @@
             transform: translate(-50%, -50%);
         }
         .main-image {
-            /* width: 100%; */
-            max-width: 160%;
+            width: 450px;
             height: auto;
             z-index: 2;
         }
@@ -65,14 +66,14 @@
 </head>
 <body>
     <div class="container">
-        <img src="assets/image.png" alt="Main Image" class="main-image">
-        <img src="assets/icon.png" alt="Button Image" class="button-image" onclick="spinWheel()">
+        <img src="assets/spin_wheel.png" alt="Main Image" class="main-image">
+        <img src="assets/icon.png" alt="Button Image" class="button-image">
         <canvas id="wheelCanvas" class="fortune-wheel"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
-        const segments = ["25₹","50₹","Hard Luck", "25₹","50₹", "Hard Luck", "25₹", "50₹", "Hard Luck"];
+        const segments = ["25₹","50₹","😔", "25₹","50₹", "😔", "25₹", "50₹", "😔"];
         const colors = [ "#E78C2D", "#FD4267", "#61B5F4","#E78C2D", "#FD4267", "#61B5F4","#E78C2D", "#FD4267", "#61B5F4"];
         let startAngle = 0;
         let arc = Math.PI / (segments.length / 2);
@@ -82,31 +83,42 @@
         let spinTimeTotal = 0;
 
         function drawWheel() {
-            const canvas = document.getElementById("wheelCanvas");
-            const ctx = canvas.getContext("2d");
-            const outsideRadius = canvas.width / 2 - 20;
-            const textRadius = outsideRadius - 70;
-            const insideRadius = 20;
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const outsideRadius = canvas.width / 2 - 20;
+    const textRadius = outsideRadius - 50; // Adjusted radius for text
+    const insideRadius = 20;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "bold 20px 'Londrina Outline', cursive";
 
-            for (let i = 0; i < segments.length; i++) {
-                const angle = startAngle + i * arc;
-                ctx.fillStyle = colors[i];
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, angle, angle + arc, false);
-                ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, angle + arc, angle, true);
-                ctx.fill();
-                ctx.save();
-                ctx.fillStyle = "#fff";
-                ctx.translate(canvas.width / 2 + Math.cos(angle + arc / 2) * textRadius,
-                              canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius);
-                ctx.rotate(angle + arc / 2 + Math.PI / 2);
-                const text = segments[i];
-                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
-                ctx.restore();
-            }
-        }
+    for (let i = 0; i < segments.length; i++) {
+        const angle = startAngle + i * arc;
+        ctx.fillStyle = colors[i];
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, angle, angle + arc, false);
+        ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, angle + arc, angle, true);
+        ctx.fill();
+        ctx.save();
+
+        // Adjust text position to display from bottom of the segment to middle top
+        const textX = canvas.width / 2 + Math.cos(angle + arc / 2) * textRadius;
+        const textY = canvas.height / 2 + Math.sin(angle + arc / 2) * textRadius - 10; // Adjusted margin
+
+        // Rotate the context to display text vertically
+        ctx.translate(textX, textY);
+        ctx.rotate(angle + arc / 2 + Math.PI);
+
+        const text = segments[i];
+        
+        // Set text color
+        ctx.fillStyle = "whitesmoke";
+        ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+        ctx.restore();
+    }
+}
+
+
 
         function rotateWheel() {
             spinTime += 30;
@@ -128,8 +140,14 @@
             const winningPrize = segments[index];
 
             const popup = document.createElement('div');
-            popup.textContent = "You won: " + winningPrize;
             popup.className = 'popup';
+
+            if (winningPrize === "😔") {
+                popup.textContent = "Better luck next time!";
+            } else {
+                popup.textContent = "You won: " + winningPrize;
+            }
+
             document.body.appendChild(popup);
 
             // Confetti effect
